@@ -1,0 +1,167 @@
+@startuml
+
+namespace Program {
+	note as general_comment
+		飛行経路はロール・ピッチ・ヨーの
+		各姿勢角速度(プログラムレート)により定義する
+	end note
+
+	namespace Rocket {
+
+		class Rocket {
+			RocketStage rs
+			flight()
+		}
+
+		note top of Rocket
+			クラスが肥大化しないよう注意
+			極力パラメータクラスを指向して設計する
+		end note
+
+		class RocketStage {
+			RocketState state
+		}
+
+		class RocketState {
+			position // ECI, ECEF, LLH, NED, AIR, BODY
+			velocity
+			acceleration
+			and other rocket's physical parameter
+		}
+
+		class Orbit {
+
+		}
+
+		namespace FSW #gray {
+			class FSW {
+
+			}
+			class Navigation {
+
+			}
+			class Guidance {
+
+			}
+			class Control {
+
+			}
+			FSW <|-- Navigation
+			FSW <|-- Guidance
+			FSW <|-- Control
+			Control o-- ControlSystemModel
+			Guidance o-- InductiveLogic
+			Navigation o-- IMU_Model
+		}
+		note "今後実装予定" as NoteFSW1
+		NoteFSW1 .. Program.Rocket.FSW
+
+		interface INavigationGuidanceControl #gray {
+			command ngc(rocket_status)
+		}
+		note "今後実装予定" as NoteINGC
+		NoteINGC . Program.Rocket.INavigationGuidanceControl
+
+		INavigationGuidanceControl <|.. Program.Rocket.FSW.FSW
+		Program.Rocket.Rocket ..> INavigationGuidanceControl
+		note left on link
+			Pass the rudder angle command
+			based on the guidance logic
+			from the state quantity of the rocket
+		end note
+
+		Program.Rocket.Rocket "1" *--- "n" RocketStage
+		RocketStage *-- RocketState
+		Program.Rocket.Orbit -* Program.Rocket.RocketState
+
+	}
+
+	namespace Environment {
+		class Environment {
+
+		}
+		Environment *-- Air
+		Environment *-- Gravity
+	}
+
+	class Logger {
+
+	}
+	Program.Rocket.Rocket ---> Logger
+
+	interface IEnvironmentalInformation {
+		get_EnvInfo(altitude, lattitude)
+	}
+	IEnvironmentalInformation <|.. Program.Environment.Environment
+	IEnvironmentalInformation <.. Program.Rocket.Rocket : > g, air_info(temperature, velocity, pressure, density)
+
+	class OpenTsiolkovskyPy {
+		def main()
+	}
+
+	class Simulator {
+		bool simulation_flags
+	}
+
+	class calculation #palegreen {
+		def runge_kutta()
+	}
+	note left of calculation
+		It would have been more reliable to use
+		the scipy module's ode integrator,
+		but since the freedom in functions such as
+		outputting results during calculations was low,
+		I prepared my own solver.
+	end note
+
+
+	interface IRocketStatus {
+		status get_status(self, simulation_status)
+	}
+
+	interface IOdeSolver {
+		dx __call__(self, t, x)
+		observer(self, t, x)
+	}
+
+	OpenTsiolkovskyPy --> Simulator
+	IRocketStatus <|..d. Program.Rocket.Rocket
+	IOdeSolver <|.... Program.Rocket.Rocket
+	Simulator --> IRocketStatus
+
+	Simulator --> calculation
+	calculation ...> IOdeSolver : < dx
+	note bottom on link
+		x is 7 parameters consisted of
+		mass, position(x, y, z), velocity(vx, vy, vz),
+		in ECI coordinate system.
+		And dx is derivative of x (dm, dx, dy, dz, dvx, dvy, dvz).
+	end note
+
+	note left of Simulator
+		飛行解析シミュレーションを制御・実行する
+		フラグ管理・分岐等はRocketクラスのステータスを見て
+		本クラスが適切に実施する
+	end note
+
+	class CoordinateSystem {
+		get_DCM_method()
+	}
+
+	Program.Rocket --> CoordinateSystem
+}
+
+namespace External_Parameter {
+	Entity SettingFile.json5 #skyblue
+	class define
+	class settings {
+		dict simulation_parameters
+	}
+
+	SettingFile.json5 <.. define
+	define <.. settings
+}
+
+Program --> External_Parameter.settings
+
+@enduml

@@ -1,0 +1,201 @@
+{
+    "name(str)": "M-V-1",
+    "calculate condition": {
+        "end time[s]": 5000,
+        "time step for output[s]": 1,
+        "variation ratio of air density[%](-100to100, default=0)": 0.0
+    },
+    "launch": {
+        "position LLH[deg,deg,m]": [31.250931, 131.082438, 200.4],
+        "velocity NED[m/s]": [0.0, 0.0, 0.0],
+        "time(UTC)[y,m,d,h,min,sec]": [1997,2,12,4,50,0]
+    },
+    "stage1": {
+        "power flight mode(int)": 0,
+        "free flight mode(int)": 2,
+        "mass initial[kg]":  139000.0,
+        "thrust": {
+            "Isp vac file exist?(bool)": false,
+            "Isp vac file name(str)": "sample/Isp.csv",
+            "Isp coefficient[-]": 1.0,
+            "const Isp vac[s]": 274.0,
+            "thrust vac file exist?(bool)": true,
+            "thrust vac file name(str)": "./input/M-V_B1(M-14)_thrust_(85_116).csv",
+            "thrust coefficient[-]": 1.00,
+            "const thrust vac[N]": 0,
+            "burn start time(time of each stage)[s]": 0.0,
+            "burn end time(time of each stage)[s]": 96.9,
+            "forced cutoff time(time of each stage)[s]": 96.9,
+            "throat diameter[m]": 0.745,
+            "nozzle expansion ratio[-]": 10.3,
+            "nozzle exhaust pressure[Pa]": 101300.0
+        },
+        "aero": {
+            "body diameter[m]": 2.50,
+            "normal coefficient file exist?(bool)": false,
+            "normal coefficient file name(str)": "sample/CN.csv",
+            "normal multiplier[-]": 1.0,
+            "const normal coefficient[-]": 0.2,
+            "axial coefficient file exist?(bool)": false,
+            "axial coefficient file name(str)": "sample/CA.csv",
+            "axial multiplier[-]": 1.0,
+            "const axial coefficient[-]": 0.2,
+            "ballistic coefficient(ballistic flight mode)[kg/m2]": 100
+        },
+        "attitude": {
+            "attitude file exist?(bool)": true,
+            "attitude file name(str)": "./input/M-V-F1_attitude(for exe).csv",
+            "const elevation[deg]": 0.0,
+            "const azimth[deg]": 0.0,
+            "elevation offset[deg]": 0.0,
+            "azimth offset[deg]": 0.0
+        },
+        "dumping product": {
+            "dumping product exist?(bool)" : false,
+            "dumping product separation time[s]" : 0,
+            "dumping product mass[kg]" : 0,
+            "dumping product ballistic coefficient[kg/m2]" : 0,
+            "additional speed at dumping NED[m/s,m/s,m/s]" : [0.0, 0.0, 0.0]
+        },
+        "attitude neutrality(3DoF)": {
+            "considering neutrality?(bool)" : false,
+            "CG, Controller position file(str)" : "sample/neutrality.csv",
+            "CP file(str)" : ""
+        },
+        "6DoF": {
+            "CG,CP,Controller position file(str)" : "",
+            "moment of inertia file name(str)": ""
+        },
+        "stage": {
+            "following stage exist?(bool)": true,
+            "separation time[s]": 75.0
+        }
+    },
+    "stage2": {
+        "power flight mode(int)": 0,
+        "free flight mode(int)": 2,
+        "mass initial[kg]": 51900.0,
+        "thrust": {
+            "Isp vac file exist?(bool)": false,
+            "Isp vac file name(str)": "sample/Isp.csv",
+            "Isp coefficient[-]": 1.0,
+            "const Isp vac[s]": 287.0,
+            "thrust vac file exist?(bool)": true,
+            "thrust vac file name(str)": "./input/M-V_B2(M-24)_thrust_(85_116).csv",
+            "thrust coefficient[-]": 1.00,
+            "const thrust vac[N]": 0.0,
+            "burn start time(time of each stage)[s]": 75.0,
+            "burn end time(time of each stage)[s]": 171.6,
+            "forced cutoff time(time of each stage)[s]": 171.6,
+            "throat diameter[m]": 0.400,
+            "nozzle expansion ratio[-]": 30.8,
+            "nozzle exhaust pressure[Pa]": 0.0
+        },
+        "aero": {
+            "body diameter[m]": 2.50,
+            "normal coefficient file exist?(bool)": false,
+            "normal coefficient file name(str)": "sample/CN.csv",
+            "normal multiplier[-]": 1.0,
+            "const normal coefficient[-]": 0.2,
+            "axial coefficient file exist?(bool)": false,
+            "axial coefficient file name(str)": "sample/CA.csv",
+            "axial multiplier[-]": 1.0,
+            "const axial coefficient[-]": 0.2,
+            "ballistic coefficient(ballistic flight mode)[kg/m2]": 100
+        },
+        "attitude": {
+            "attitude file exist?(bool)": true,
+            "attitude file name(str)": "./input/M-V-F1_attitude(for exe).csv",
+            "const elevation[deg]": 0.0,
+            "const azimth[deg]": 0.0,
+            "elevation offset[deg]": 0.0,
+            "azimth offset[deg]": 0.0
+        },
+        "dumping product": {
+            "dumping product exist?(bool)" : false,
+            "dumping product separation time[s]" : 0,
+            "dumping product mass[kg]" : 0,
+            "dumping product ballistic coefficient[kg/m2]" : 0,
+            "additional speed at dumping NED[m/s,m/s,m/s]" : [0.0, 0.0, 0.0]
+        },
+        "attitude neutrality(3DoF)": {
+            "considering neutrality?(bool)" : false,
+            "CG, Controller position file(str)" : "sample/neutrality.csv",
+            "CP file(str)" : ""
+        },
+        "6DoF": {
+            "CG,CP,Controller position file(str)" : "",
+            "moment of inertia file name(str)": ""
+        },
+        "stage": {
+            "following stage exist?(bool)": true,
+            "separation time[s]": 213.0
+        }
+    },
+    "stage3": {
+        "power flight mode(int)": 0,
+        "free flight mode(int)": 2,
+        "mass initial[kg]": 14100.0,
+        "thrust": {
+            "Isp vac file exist?(bool)": false,
+            "Isp vac file name(str)": "sample/Isp.csv",
+            "Isp coefficient[-]": 1.0,
+            "const Isp vac[s]": 302.0,
+            "thrust vac file exist?(bool)": true,
+            "thrust vac file name(str)": "./input/M-V_B3(M-34a)_thrust_(85_116).csv",
+            "thrust coefficient[-]": 1.00,
+            "const thrust vac[N]": 0.0,
+            "burn start time(time of each stage)[s]": 213.0,
+            "burn end time(time of each stage)[s]": 320.5,
+            "forced cutoff time(time of each stage)[s]": 320.5,
+            "throat diameter[m]": 0.190,
+            "nozzle expansion ratio[-]": 96.0,
+            "nozzle exhaust pressure[Pa]": 0.0
+        },
+        "aero": {
+            "body diameter[m]": 2.20,
+            "normal coefficient file exist?(bool)": false,
+            "normal coefficient file name(str)": "sample/CN.csv",
+            "normal multiplier[-]": 1.0,
+            "const normal coefficient[-]": 0.2,
+            "axial coefficient file exist?(bool)": false,
+            "axial coefficient file name(str)": "sample/CA.csv",
+            "axial multiplier[-]": 1.0,
+            "const axial coefficient[-]": 0.2,
+            "ballistic coefficient(ballistic flight mode)[kg/m2]": 100
+        },
+        "attitude": {
+            "attitude file exist?(bool)": true,
+            "attitude file name(str)": "./input/M-V-F1_attitude(for exe).csv",
+            "const elevation[deg]": 0.0,
+            "const azimth[deg]": 0.0,
+            "elevation offset[deg]": 0.0,
+            "azimth offset[deg]": 0.0
+        },
+        "dumping product": {
+            "dumping product exist?(bool)" : false,
+            "dumping product separation time[s]" : 0,
+            "dumping product mass[kg]" : 0,
+            "dumping product ballistic coefficient[kg/m2]" : 0,
+            "additional speed at dumping NED[m/s,m/s,m/s]" : [0.0, 0.0, 0.0]
+        },
+        "attitude neutrality(3DoF)": {
+            "considering neutrality?(bool)" : false,
+            "CG, Controller position file(str)" : "sample/neutrality.csv",
+            "CP file(str)" : ""
+        },
+        "6DoF": {
+            "CG,CP,Controller position file(str)" : "",
+            "moment of inertia file name(str)": ""
+        },
+        "stage": {
+            "following stage exist?(bool)": false,
+            "separation time[s]": 340.0
+        }
+    },
+    "wind": {
+        "wind file exist?(bool)": false,
+        "wind file name(str)": "sample/wind.csv",
+        "const wind[m/s,deg]": [30.0, 90.0]
+    }
+}

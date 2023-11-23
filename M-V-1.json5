@@ -1,0 +1,271 @@
+{
+    /* Version 1.00 (Update: 2022/12/9)
+     * Template file for input data to OpenTsiolkovsky (tentative name).
+     * Format conforms to json5. Modify it to an appropriate value (stage copies as many blocks as necessary) and use it.
+     *
+     * In addition, the following functions are supported by extending the json5 notation.
+     *     refer to other items   : Refer to the value of the corresponding key by specifying the key name with "&" at the beginning as follows.
+     *                              "[key]": "&[parent_key.referantial_key]" (specify a key from the global scope)
+     *     open other setting file: (TBA) Read data from different configuration files with the following syntax.
+     *                              "[key]": "&f&[file_path]"
+    */
+
+    "ProjectName": "M-V-1(for ver0.41 compared configuration)",
+
+    // system settings
+    "system": {
+        "show_message": 2,       // 0:no message, 1:only result, 2:full(step by step)
+        "output_log": true,      // output csv file: true or false
+        "profiling": true,       // profiling time
+    },
+
+    // simulation settings
+    "sim_settings": {
+        "flight_mode": ["3DOF", "ballistic"], // first arg:"3DOF" or "6DOF"(TBA). second arg:"aerodynamic_stable"(TBA) or "ballistic".
+        "montecarlo_simulation": false,       // false, str(file_path) or "&montecarlo". if str set, simulated montecarlo simulation.
+        "calculate_condition": {
+            "start" : 0.0,       // simulation start time [s]
+            "end"   : 5000.0,    // simulation end time [s]
+            "step"  : 1.0,       // time step for output[s]
+            //(TBA) "method": "dop853",  // solving methods for finding differential equations.
+            //(TBA) "rtol"  : 1e-06,     // relative error in solving a differential equation. library's default: 1e-06.
+            //(TBA) "atol"  : 1e-12,     // absolute error in solving a differential equation. library's default: 1e-12.
+            "atomospheric_dispersion": 0.0, // variation ratio of air density[%] (-100to100, default=0)
+        },
+        "simulation_target_mode": "fast",   // "all" computes all objects. "fast" only calculates in-flight integrated results.
+        "launch": {
+            "position" : [31.250931, 131.082438, 200.4],    // launch point coordinates in LLH(Latitude, Longitude, Height) [deg, deg, m]
+            "velocity" : [0.0, 0.0, 0.0],                   // Initial velocity at launch in NED(North, East, Down) [m/s]
+            "epoch"    : [1997,2,12,4,50,0],                // epoch time(UTC) [y,m,d,h,min,sec]
+            "attitude" : null, //[83.0, 0.0, 0.0],          // Initial attitude at launch in NED(North, East, Down) [deg, deg, deg] (if trajectory mode is 1, this parameter is unneeded.)
+            "offset"   : [0, 92.9, 0.0],                    // Specify the amount equivalent to the offset between the NED coordinate system and the aircraft coordinate system (for example, launcher turning angle, etc.)
+        },
+    },
+
+    // set rocket's sequence of event (events should be listed in chronological order)
+    // 注：OpenTsiolkovsky ver0.41との出力比較のため、本来のM-V-1のSOEからは変更を加えている箇所がある。
+    "SOE": {
+        "LiftOff": 0.0,
+        "B1IG"   : 0.0,
+        "B1SEP"  : 75.0,
+        "B2IG"   : 75.0,
+        "B1BO"   : 96.9,
+        "B2BO"   : 171.6,
+        "B2SEP"  : 213.0,
+        "B3IG"   : 213.0,
+        "B3BO"   : 320.5,
+        "B3SEP"  : 340.0,
+        "PL1SEP" : 10000.0
+    },
+
+    // set flight path information
+    "trajectory": {
+        "mode"  : 1,                // specify how the flight path is set.  0:program rate(P,Y,R),  1:attitude(P,Y,R),  2:FSW(interactive)(TBA)
+        "data"  : "./input/M-V-F1_attitude.csv", // specify the file path if there is configuration file, otherwise enter a constant value array [P, Y, R].
+    },
+
+    // Parameters that change depending on weather conditions, etc.
+    "env_params": {
+        "wind_data": [30.0, 90.0], // specify the file path if there is wind data file, otherwise enter a constant value array [wind speed, wind direction]. [m/s,deg]
+    },
+
+    /* set rocket staging information
+     *
+     * The first stage, the second stage, and so on are executed in order from the top.
+     * The name of the stage can be anything, but it should contain the necessary information, referring to the following.
+    */
+    "stage": {
+        "stage1": {
+            "mass": [139000.0, 51900.0],                 // first arg: gross mass.  last arg : (TBA) inert mass excluding upper stage and deploy object. [kg]
+                                                         // if only one argument, this stage is treated inertial object.
+            // set propulsion system
+            "propulsion": {
+                "motor": {                               // the name is arbitrary. add blocks if there are multiple propulsion systems(TBA).
+                    "Isp": 274.0,                        // specify the file path if there is an Isp configuration file, otherwise enter a constant value in Isp@VAC [s].
+                    "Isp_coef": 1.0,                     // Isp coefficient [-]. (default: 1.0) - Used when intentionally lowering the output
+                    "thrust": "./input/M-V_B1(M-14)_thrust_(85_116).csv", // specify the file path if there is an thrust configuration file, otherwise enter a constant value in VAC [N].
+                    "thrust_coef": 1.00,                 // thrust coefficient [-]. (default: 1.0) - Used when intentionally lowering the output
+                    "Ignition" : "&SOE.B1IG",            // set the ignition time (X+time [s]). in case of reignition, add the reignition time to the array(TBA).
+                    "Burnout"  : "&SOE.B1BO",            // set the cutoff time (X+time [s]). in case of reignition, add the burn end time to the array(TBA). if null use data till end.
+                    "throat_diameter": 0.745,            // throat diameter [m]
+                    "nozzle_expansion_ratio": 10.3,      // nozzle expansion ratio [-]
+                    "nozzle_exhaust_pressure": 101300.0, // nozzle exhaust pressure [Pa]
+                },
+            },
+            // set structural system (e.g. aerodynamics)
+            "structure": {
+                "diameter": 2.50,      // body diameter [m]
+                "CN": 0.2,             // specify the file path if there is an CN(normal coefficient) configuration file, otherwise enter a constant value [-].
+                "CA": 0.2,             // specify the file path if there is an CA(axial coefficient) configuration file, otherwise enter a constant value [-].
+                "BC": 100.0,           // ballistic coefficient (ballistic flight mode): beta [kg/m2]
+                "neutrality": null,    // (TBA) specify the equilibrium point for 3DOF and 6DOF calculations. [CG, CP, moment of inertia(6DOF)] (filepath)
+            },
+            // set staging info
+            "staging": {
+                "separation_time": "&SOE.B1SEP",    // time to separate stages (unnecessary for final stage).
+                "calc_deploy_object": true,          // whether to continue calculating the separated/expanded object.
+                // if there is speculation (motor, fairing, etc.), add their information to the array below.
+                "deploy_object": {
+                    "B1": {
+                        "separation_time" : "&SOE.B1SEP",          // time to separate stages
+                        "mass" : null,                             // [kg] - if null, it will be calculated with the inert mass.
+                        "BC"   : 100.0,                            // ballistic coefficient [kg/m2]
+                        "additional_velocity" : [0.0, 0.0, 0.0],   // additional speed at dumping NED[m/s,m/s,m/s]
+                    },
+                },
+            },
+        },
+        "stage2": {
+            "mass": [51900.0, 14100.0],                  // first arg: gross mass.  last arg : inert mass excluding upper stage and deploy object. [kg]
+            // set propulsion system
+            "propulsion": {
+                "motor": {                               // the name is arbitrary. add blocks if there are multiple propulsion systems.
+                    "Isp": 287.0,                        // specify the file path if there is an Isp configuration file, otherwise enter a constant value in VAC [s].
+                    "Isp_coef": 1.0,                     // Isp coefficient [-]. (default: 1.0) - Used when intentionally lowering the output
+                    "thrust": "./input/M-V_B2(M-24)_thrust_(85_116).csv", // specify the file path if there is an thrust configuration file, otherwise enter a constant value in VAC [N].
+                    "thrust_coef": 1.00,                 // thrust coefficient [-]. (default: 1.0) - Used when intentionally lowering the output
+                    "Ignition" : "&SOE.B2IG",          // set the ignition time (X+time [s]). in case of reignition, add the reignition time to the array.
+                    "Burnout"  : "&SOE.B2BO",          // set the cutoff time (X+time [s]). in case of reignition, add the burn end time to the array. if null use data till end.
+                    "throat_diameter": 0.400,            // throat diameter [m]
+                    "nozzle_expansion_ratio": 30.8,      // nozzle expansion ratio [-]
+                    "nozzle_exhaust_pressure": 0.0,      // nozzle exhaust pressure [Pa]
+                },
+            },
+            // set structural system (e.g. aerodynamics)
+            "structure": {
+                "diameter": 2.50,    // body diameter [m]
+                "CN": 0.2,           // specify the file path if there is an CN(normal coefficient) configuration file, otherwise enter a constant value [-].
+                "CA": 0.2,           // specify the file path if there is an CA(axial coefficient) configuration file, otherwise enter a constant value [-].
+                "BC": 100.0,         // ballistic coefficient (ballistic flight mode): beta [kg/m2]
+                "neutrality": null,  // specify the equilibrium point for 3DOF and 6DOF calculations. [CG, CP, moment of inertia(6DOF)] (filepath)
+            },
+            // set staging info
+            "staging": {
+                "separation_time": "&SOE.B2SEP",                      // time to separate stages (unnecessary for final stage).
+                "calc_deploy_object": true,                            // whether to continue calculating the separated/expanded object.
+                // if there is speculation (motor, fairing, etc.), add their information to the array below.
+                "deploy_object": {
+                    "B2": {
+                        "separation_time" : "&SOE.B2SEP",             // time to separate stages
+                        "mass" : null,                                 // [kg] - if null, it will be calculated with the inert mass.
+                        "BC"   : 100.0,                                // ballistic coefficient [kg/m2]
+                        "additional_velocity" : [0.0, 0.0, 0.0],       // additional speed at dumping NED[m/s,m/s,m/s]
+                    },
+                },
+            },
+        },
+        "stage3": {
+            "mass": [14100.0, 2400.0], // first arg: gross mass.  last arg : inert mass excluding upper stage and deploy object. [kg]
+            // set propulsion system
+            "propulsion": {
+                "motor": {                              // the name is arbitrary. add blocks if there are multiple propulsion systems.
+                    "Isp": 302.0,                       // specify the file path if there is an Isp configuration file, otherwise enter a constant value in VAC [s].
+                    "Isp_coef": 1.0,                    // Isp coefficient [-]. (default: 1.0) - Used when intentionally lowering the output
+                    "thrust": "./input/M-V_B3(M-34a)_thrust_(85_116).csv", // specify the file path if there is an thrust configuration file, otherwise enter a constant value in VAC [N].
+                    "thrust_coef": 1.00,                // thrust coefficient [-]. (default: 1.0) - Used when intentionally lowering the output
+                    "Ignition" : "&SOE.B3IG",         // set the ignition time (X+time [s]). in case of reignition, add the reignition time to the array.
+                    "Burnout"  : "&SOE.B3BO",         // set the cutoff time (X+time [s]). in case of reignition, add the burn end time to the array. if null use data till end.
+                    "throat_diameter": 0.190,           // throat diameter [m]
+                    "nozzle_expansion_ratio": 96.0,     // nozzle expansion ratio [-]
+                    "nozzle_exhaust_pressure": 0.0,     // nozzle exhaust pressure [Pa]
+                },
+            },
+            // set structural system (e.g. aerodynamics)
+            "structure": {
+                "diameter": 2.20,   // body diameter [m]
+                "CN": 0.2,          // specify the file path if there is an CN(normal coefficient) configuration file, otherwise enter a constant value [-].
+                "CA": 0.2,          // specify the file path if there is an CA(axial coefficient) configuration file, otherwise enter a constant value [-].
+                "BC": 100.0,        // ballistic coefficient (ballistic flight mode): beta [kg/m2]
+                "neutrality": null, // specify the equilibrium point for 3DOF and 6DOF calculations. [CG, CP, moment of inertia(6DOF)] (filepath)
+            },
+            // set staging info
+            "staging": {
+                "separation_time": "&SOE.B3SEP",    // time to separate stages (unnecessary for final stage).
+                "calc_deploy_object": false,         // whether to continue calculating the separated/expanded object.
+                // if there is speculation (motor, fairing, etc.), add their information to the array below.
+                "deploy_object": {
+                    "B3": {
+                        "separation_time" : "&SOE.B3SEP",          // time to separate stages
+                        "mass" : null,                              // [kg] - if null, it will be calculated with the inert mass.
+                        "BC"   : 100.0,                             // ballistic coefficient [kg/m2]
+                        "additional_velocity" : [0.0, 0.0, 0.0],    // additional speed at dumping NED[m/s,m/s,m/s]
+                    },
+                },
+            },
+        },
+    },
+    // set payload information
+    "payload": {
+        "PL1": {
+            "separation_time" : "&SOE.PL1SEP",      // time to separate payload
+            "mass" : 2400,                           // [kg]
+        },
+    },
+    "montecarlo": {
+        "show_message": 1,       // 0:no message, 1:only result, 2:full(step by step)
+        "output_log": 2,     // output log file: 0: no log, 1: only result, 2: full(output log in all cases)
+        "num_cases": 10000,  // the number of montecarlo simulation cases.
+        "num_thread": 20,    // the number of multi threads. Automatically setted when 0.
+        "seed": 0,          // setting random seed. randomly generated if "random" is setted.
+        "nominal_output": true, // output nominal files
+        // Set error data(3σ value). The error can be specified from two types:
+        //      'add': Add or subtract the given value as an absolute value
+        //      '%'  : Specify the percentage of error relative to the total amount as a percentage.
+        "error": {
+            "stage.stage1.mass": [5.0, '%'],
+            "stage.stage2.mass": [5.0, '%'],
+            "stage.stage3.mass": [5.0, '%'],
+            "stage.stage1.propulsion.motor.thrust": [5.0, '%'],
+            "stage.stage1.propulsion.motor.Isp": [5.0, '%'],
+            "stage.stage2.propulsion.motor.thrust": [5.0, '%'],
+            "stage.stage2.propulsion.motor.Isp": [5.0, '%'],
+            "stage.stage3.propulsion.motor.thrust": [5.0, '%'],
+            "stage.stage3.propulsion.motor.Isp": [5.0, '%'],
+        },
+    },
+    // set physical and mathematical constants
+    "constants": {
+        // constants that varies by planet
+        /* 参考文献:
+            基本的には「OpenTsiolkovsky」のソースコードに記載の値を使用している。その他以下の情報を参考にした。
+            1) https://ja.wikipedia.org/wiki/%E5%9C%B0%E7%90%83
+            2) https://ja.wikipedia.org/wiki/%E9%87%8D%E5%8A%9B%E5%8A%A0%E9%80%9F%E5%BA%A6
+            3) https://ja.wikipedia.org/wiki/%E5%9C%B0%E7%90%83%E3%81%AE%E8%87%AA%E8%BB%A2
+            4) https://ja.wikipedia.org/wiki/GRS80
+            5) http://jr1huo.my.coocan.jp/jr1huo_calsat32/Calsat32Earth.htm
+        */
+        "planet": {
+            "Earth": {
+                "mass": 5.972e+24,                             // mass [kg]
+                "volume": 1.083207e+12,                        // volume [km^3]
+                "g0": 9.80665,                                 // standard acceleration of gravity [m/s^2]
+                "omega": 7.2921159e-5,                         // rotation angular velocity [rad/s]
+                "Re": 6378137.0,                               // equatorial radius [m]
+                "polar_radius": 6356752.314,                   // polar radious [m]
+                "density": 5.51e+3,                            // mean density [kg/m^3]
+                "a": "&constants.planet.Earth.Re",             // the semimajor axis in "WGS84" [m]
+                "f": 0.0033528106647474805,                    // ellipticity (flattening) [-] (1.0 / 298.257223563)
+                "one_f": 298.257223563,                        // 1/f [-]
+                "b": "&constants.planet.Earth.polar_radius",   // the semiminor axis in "WGS84" [m] (b = a * (1.0 - 1.0 / one_f))
+                "e": 0.08181919084262149,                      // Eccentricity [-] (sqrt(2*f - f*f))
+                "e2": 0.0066943799901413165,                   // square of first eccentricity e ((1.0 / one_f) * (2.0 - (1.0 / one_f))
+                "ed2": 0.006739496742276435,                   // square of second eccentricity e (e2 * a * a / (b * b))
+                "mu": 3.986004e+14,                            // gravitational constant: µ [m^3/s^2]
+                "J2": 1.08263e-3,                              // a constant that depends on the mass distribution of the Earth
+                "J3": -254e-8,                                 // a constant that depends on the mass distribution of the Earth
+                "J4": -162e-8,                                 // a constant that depends on the mass distribution of the Earth
+                "atomosphere": {
+                    "gamma": 1.4,
+                    "R": 287.0531,
+                    "HAL": [0, 11000, 20000, 32000, 47000, 51000, 71000, 84852],             // height of atmospheric layer
+                    "LR":  [-0.0065, 0.0, 0.001, 0.0028, 0, -0.0028, -0.002, 0.0],           // lapse rate [K/m]
+                    "T0":  [288.15, 216.65, 216.65, 228.65, 270.65, 270.65, 214.65, 186.95], // tempareture [K]
+                    "P0":  [101325, 22632, 5474.9, 868.02, 110.91, 66.939, 3.9564, 0.3734],  // pressure [Pa]
+                },
+            },
+        },
+        "math": {
+            "infinity": 1.0e+30,
+        },
+    },
+}
